@@ -1,0 +1,248 @@
+{
+	"id": null,
+	"title": "Observabilidade Social - Dados Transformados",
+	"timezone": "browser",
+	"schemaVersion": 39,
+	"version": 1,
+	"refresh": "10s",
+	"panels": [
+		{
+			"type": "stat",
+			"title": "Média da Idade ao Morrer",
+			"datasource": "loki",
+			"targets": [
+				{
+					"expr": "{job=\"pessoas_transformadas\"} | json",
+					"refId": "A"
+				}
+			],
+			"gridPos": {
+				"h": 4,
+				"w": 24,
+				"x": 0,
+				"y": 0
+			},
+			"transformations": [
+				{
+					"id": "extractFields",
+					"options": {
+						"fields": {
+							"age_at_death": { "format": "number" }
+						}
+					}
+				},
+				{
+					"id": "reduce",
+					"options": {
+						"calcs": ["mean"]
+					}
+				}
+			]
+		},
+		{
+			"type": "piechart",
+			"title": "Distribuição de Causas de Morte",
+			"datasource": "loki",
+			"targets": [
+				{
+					"expr": "{job=\"pessoas_transformadas\"} | json",
+					"refId": "B"
+				}
+			],
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 4
+			},
+			"transformations": [
+				{
+					"id": "extractFields",
+					"options": {
+						"fields": {
+							"cause_of_death": { "format": "string" }
+						}
+					}
+				},
+				{
+					"id": "groupBy",
+					"options": {
+						"fields": {
+							"cause_of_death": "groupby"
+						},
+						"aggregations": [
+							{
+								"field": "cause_of_death",
+								"operation": "count"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"type": "piechart",
+			"title": "Distribuição por Tipo de Morte (Violenta/Natural)",
+			"datasource": "loki",
+			"targets": [
+				{
+					"expr": "{job=\"pessoas_transformadas\"} | json",
+					"refId": "C"
+				}
+			],
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 4
+			},
+			"transformations": [
+				{
+					"id": "extractFields",
+					"options": {
+						"fields": {
+							"tipo_morte": { "format": "string" }
+						}
+					}
+				},
+				{
+					"id": "groupBy",
+					"options": {
+						"fields": {
+							"tipo_morte": "groupby"
+						},
+						"aggregations": [
+							{
+								"field": "tipo_morte",
+								"operation": "count"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"type": "barchart",
+			"title": "Distribuição por Faixa Etária",
+			"datasource": "loki",
+			"targets": [
+				{
+					"expr": "{job=\"pessoas_transformadas\"} | json",
+					"refId": "D"
+				}
+			],
+			"gridPos": {
+				"h": 8,
+				"w": 24,
+				"x": 0,
+				"y": 12
+			},
+			"transformations": [
+				{
+					"id": "extractFields",
+					"options": {
+						"fields": {
+							"faixa_etaria": { "format": "string" }
+						}
+					}
+				},
+				{
+					"id": "groupBy",
+					"options": {
+						"fields": {
+							"faixa_etaria": "groupby"
+						},
+						"aggregations": [
+							{
+								"field": "faixa_etaria",
+								"operation": "count"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"type": "piechart",
+			"title": "Severidade dos Eventos (level)",
+			"datasource": "loki",
+			"targets": [
+				{
+					"expr": "{job=\"pessoas_transformadas\"} | json",
+					"refId": "E"
+				}
+			],
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 20
+			},
+			"transformations": [
+				{
+					"id": "extractFields",
+					"options": {
+						"fields": {
+							"level": { "format": "string" }
+						}
+					}
+				},
+				{
+					"id": "groupBy",
+					"options": {
+						"fields": {
+							"level": "groupby"
+						},
+						"aggregations": [
+							{
+								"field": "level",
+								"operation": "count"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"type": "table",
+			"title": "Eventos Detalhados",
+			"datasource": "loki",
+			"targets": [
+				{
+					"expr": "{job=\"pessoas_transformadas\"} | json",
+					"refId": "F"
+				}
+			],
+			"gridPos": {
+				"h": 12,
+				"w": 24,
+				"x": 0,
+				"y": 28
+			},
+			"transformations": [
+				{
+					"id": "extractFields",
+					"options": {
+						"fields": {
+							"timestamp": { "format": "string" },
+							"level": { "format": "string" },
+							"person_id": { "format": "string" },
+							"birth_year": { "format": "number" },
+							"death_year": { "format": "number" },
+							"age_at_death": { "format": "number" },
+							"cause_of_death": { "format": "string" },
+							"tipo_morte": { "format": "string" },
+							"faixa_etaria": { "format": "string" },
+							"region": { "format": "string" }
+						}
+					}
+				}
+			]
+		}
+	],
+	"time": {
+		"from": "now-6h",
+		"to": "now"
+	},
+	"editable": true
+}
